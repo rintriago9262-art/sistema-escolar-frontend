@@ -378,8 +378,18 @@
           document.getElementById('matModoEdit').value = 'false';
           document.getElementById('modalTituloMateria').innerText = 'Nueva Materia';
       }
+
+      function prepararCrearEstudiante() {
+          document.getElementById('formEstudiante').reset();
+          document.getElementById('modalTituloEstudiante').innerText = 'Agregar Estudiante';
+      }
+
+      function prepararCrearNota() {
+          document.getElementById('formNota').reset();
+          document.getElementById('modalTituloNota').innerText = 'Registrar Nota';
+      }
   </script>
 
-  <script type="module" src="/src/main.js"></script>
+  <script type="module" src="main.js"></script>
 </body>
 </html>
