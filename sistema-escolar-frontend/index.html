@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sistema Admin</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+  <style>
+    .sidebar { min-height: 100vh; background-color: #212529; }
+    .nav-link { cursor: pointer; color: rgba(255,255,255,0.7); }
+    .nav-link:hover, .nav-link.active { color: white; background-color: #0d6efd; border-radius: 5px;}
+  </style>
+</head>
+<body class="bg-light">
+
+  <!-- ================================ -->
+  <!-- VISTA LOGIN -->
+  <!-- ================================ -->
+  <div id="vistaLogin" class="container d-flex justify-content-center align-items-center vh-100">
+    <div class="card shadow p-4" style="width: 400px;">
+      <h3 class="text-center mb-4">Iniciar Sesión</h3>
+      <form id="formLogin">
+        <div class="mb-3"><label>Cédula</label><input type="text" id="loginCedula" class="form-control" required></div>
+        <div class="mb-3"><label>Contraseña</label><input type="password" id="loginClave" class="form-control" required></div>
+        <button type="submit" class="btn btn-primary w-100">Ingresar</button>
+        <p class="text-center mt-3 text-danger" id="loginError"></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================================ -->
+  <!-- VISTA DASHBOARD -->
+  <!-- ================================ -->
+  <div id="vistaDashboard" class="d-none container-fluid">
+    <div class="row">
+      
+      <!-- SIDEBAR -->
+      <div class="col-md-2 p-0 sidebar text-white d-flex flex-column">
+        <div class="p-3 text-center border-bottom border-secondary">
+          <h4>AdminPanel</h4>
+          <small id="userNombreDisplay" class="text-warning"></small>
+        </div>
+        <ul class="nav flex-column p-2 flex-grow-1">
+          <li class="nav-item mb-2">
+            <a class="nav-link active" id="btnNavUsuarios" onclick="cambiarVista('usuarios')">👥 Usuarios</a>
+          </li>
+          <li class="nav-item mb-2">
+            <a class="nav-link" id="btnNavMaterias" onclick="cambiarVista('materias')">📚 Materias</a>
+          </li>
+          <li class="nav-item mb-2">
+            <a class="nav-link" id="btnNavEstudiantes" onclick="cambiarVista('estudiantes')">🎓 Estudiantes</a>
+          </li>
+          <li class="nav-item mb-2">
+            <a class="nav-link" id="btnNavNotas" onclick="cambiarVista('notas')">📝 Notas</a>
+          </li>
+          <li class="nav-item mb-2"><a class="nav-link" id="btnPerfil">👤 Mi Perfil</a></li>
+        </ul>
+        <div class="p-3">
+          <button id="btnSalir" class="btn btn-outline-danger w-100">Cerrar Sesión</button>
+        </div>
+      </div>
+
+      <!-- CONTENIDO PRINCIPAL -->
+      <div class="col-md-10 p-4">
+        
+        <!-- ================================ -->
+        <!-- SECCIÓN USUARIOS -->
+        <!-- ================================ -->
+        <div id="seccionUsuarios">
+            <div class="d-flex justify-content-between align-items-center mb-4 bg-white p-3 rounded shadow-sm">
+            <h4 class="m-0">Gestión de Usuarios</h4>
+            <div class="d-flex gap-2">
+                <input type="text" id="inputBuscar" class="form-control" placeholder="🔍 Buscar usuario...">
+                <button class="btn btn-success text-nowrap" data-bs-toggle="modal" data-bs-target="#modalUsuario" onclick="prepararCrearUsuario()">
+                <i class="bi bi-person-plus-fill"></i> Crear Usuario
+                </button>
+            </div>
+            </div>
+
+            <div class="card shadow-sm border-0">
+            <div class="card-body p-0">
+                <table class="table table-hover table-striped mb-0 text-center">
+                <thead class="table-dark">
+                    <tr>
+                    <th>ID</th>
+                    <th>Cédula</th>
+                    <th>Nombre</th>
+                    <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaUsuarios"></tbody>
+                </table>
+            </div>
+            </div>
+        </div>
+
+        <!-- ================================ -->
+        <!-- SECCIÓN MATERIAS -->
+        <!-- ================================ -->
+        <div id="seccionMaterias" class="d-none">
+            <div class="d-flex justify-content-between align-items-center mb-4 bg-white p-3 rounded shadow-sm">
+                <h4 class="m-0">Gestión de Materias</h4>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-primary text-nowrap" data-bs-toggle="modal" data-bs-target="#modalMateria" onclick="prepararCrearMateria()">
+                        <i class="bi bi-book-half"></i> Agregar Materia
+                    </button>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-0">
+                    <table class="table table-hover table-striped mb-0 text-center">
+                        <thead class="table-primary"> 
+                            <tr>
+                                <th>Código</th>
+                                <th>Asignatura</th>
+                                <th>Créditos</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaMaterias"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================================ -->
+        <!-- SECCIÓN ESTUDIANTES -->
+        <!-- ================================ -->
+        <div id="seccionEstudiantes" class="d-none">
+            <div class="d-flex justify-content-between align-items-center mb-4 bg-white p-3 rounded shadow-sm">
+                <h4 class="m-0">Gestión de Estudiantes</h4>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-success text-nowrap" data-bs-toggle="modal" data-bs-target="#modalEstudiante" onclick="prepararCrearEstudiante()">
+                        <i class="bi bi-person-plus-fill"></i> Agregar Estudiante
+                    </button>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-0">
+                    <table class="table table-hover table-striped mb-0 text-center">
+                        <thead class="table-success"> 
+                            <tr>
+                                <th>ID</th>
+                                <th>Cédula</th>
+                                <th>Nombre</th>
+                                <th>Apellido</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaEstudiantes"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================================ -->
+        <!-- SECCIÓN NOTAS -->
+        <!-- ================================ -->
+        <div id="seccionNotas" class="d-none">
+            <div class="d-flex justify-content-between align-items-center mb-4 bg-white p-3 rounded shadow-sm">
+                <h4 class="m-0">Gestión de Notas</h4>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-info text-white text-nowrap" data-bs-toggle="modal" data-bs-target="#modalNota" onclick="prepararCrearNota()">
+                        <i class="bi bi-journal-plus"></i> Registrar Nota
+                    </button>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-0">
+                    <table class="table table-hover table-striped mb-0 text-center">
+                        <thead class="table-info"> 
+                            <tr>
+                                <th>ID</th>
+                                <th>Estudiante</th>
+                                <th>Materia</th>
+                                <th>Calificación</th>
+                                <th>Observación</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaNotas"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ================================ -->
+  <!-- MODALES -->
+  <!-- ================================ -->
+
+  <!-- MODAL USUARIO -->
+  <div class="modal fade" id="modalUsuario" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title" id="modalTituloUsuario">Usuario</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="formUsuario">
+            <input type="hidden" id="userId"> 
+            <div class="mb-3"><label>Cédula</label><input type="text" id="userCedula" class="form-control" required></div>
+            <div class="mb-3"><label>Nombre</label><input type="text" id="userNombre" class="form-control" required></div>
+            <div class="mb-3"><label>Contraseña</label><input type="text" id="userClave" class="form-control" required></div>
+            <div class="d-grid"><button type="submit" class="btn btn-primary">Guardar Usuario</button></div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL MATERIA -->
+  <div class="modal fade" id="modalMateria" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-indigo text-white" style="background-color: #6610f2;">
+          <h5 class="modal-title" id="modalTituloMateria">Nueva Materia</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="formMateria">
+            <div class="mb-3">
+                <label>Código de Asignatura</label>
+                <input type="text" id="matCodigo" class="form-control" placeholder="Ej: MAT-101" required>
+            </div>
+            <div class="mb-3">
+                <label>Nombre de la Materia</label>
+                <input type="text" id="matNombre" class="form-control" placeholder="Ej: Matemáticas Discretas" required>
+            </div>
+            <div class="mb-3">
+                <label>Créditos</label>
+                <input type="number" id="matCreditos" class="form-control" placeholder="Ej: 4" required>
+            </div>
+            <input type="hidden" id="matModoEdit" value="false"> 
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary" style="background-color: #6610f2; border:none;">Guardar Materia</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL ESTUDIANTE -->
+  <div class="modal fade" id="modalEstudiante" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-success text-white">
+          <h5 class="modal-title" id="modalTituloEstudiante">Estudiante</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="formEstudiante">
+            <div class="mb-3">
+              <label>Cédula</label>
+              <input type="text" id="estudianteCedula" class="form-control" placeholder="Ej: 1234567890" required>
+            </div>
+            <div class="mb-3">
+              <label>Nombre</label>
+              <input type="text" id="estudianteNombre" class="form-control" placeholder="Ej: Juan" required>
+            </div>
+            <div class="mb-3">
+              <label>Apellido</label>
+              <input type="text" id="estudianteApellido" class="form-control" placeholder="Ej: Pérez" required>
+            </div>
+            <div class="d-grid">
+              <button type="submit" class="btn btn-success">Guardar Estudiante</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL NOTA -->
+  <div class="modal fade" id="modalNota" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header bg-info text-white">
+          <h5 class="modal-title" id="modalTituloNota">Nota</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="formNota">
+            <div class="mb-3">
+              <label>Estudiante</label>
+              <select id="notaEstudiante" class="form-select" required>
+                <option value="">Seleccione un estudiante</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label>Materia</label>
+              <select id="notaMateria" class="form-select" required>
+                <option value="">Seleccione una materia</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label>Calificación (0-10)</label>
+              <input type="number" id="notaCalificacion" class="form-control" min="0" max="10" step="0.1" placeholder="Ej: 8.5" required>
+            </div>
+            <div class="mb-3">
+              <label>Observación (Opcional)</label>
+              <textarea id="notaObservacion" class="form-control" rows="3" placeholder="Ej: Excelente trabajo"></textarea>
+            </div>
+            <div class="d-grid">
+              <button type="submit" class="btn btn-info text-white">Guardar Nota</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL PERFIL -->
+  <div class="modal fade" id="modalPerfil" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content text-center">
+        <div class="modal-header border-0"><button class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+          <div class="display-1 text-primary mb-2"><i class="bi bi-person-circle"></i></div>
+          <h4 id="perfilNombre"></h4>
+          <p class="text-muted" id="perfilCedula"></p>
+          <span class="badge bg-success">Administrador</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+      function cambiarVista(vista) {
+          // Ocultar todas las secciones
+          document.getElementById('seccionUsuarios').classList.add('d-none');
+          document.getElementById('seccionMaterias').classList.add('d-none');
+          document.getElementById('seccionEstudiantes').classList.add('d-none');
+          document.getElementById('seccionNotas').classList.add('d-none');
+          
+          // Remover active de todos los botones
+          document.getElementById('btnNavUsuarios').classList.remove('active');
+          document.getElementById('btnNavMaterias').classList.remove('active');
+          document.getElementById('btnNavEstudiantes').classList.remove('active');
+          document.getElementById('btnNavNotas').classList.remove('active');
+
+          // Mostrar la sección correspondiente
+          if(vista === 'usuarios') {
+              document.getElementById('seccionUsuarios').classList.remove('d-none');
+              document.getElementById('btnNavUsuarios').classList.add('active');
+          } else if (vista === 'materias') {
+              document.getElementById('seccionMaterias').classList.remove('d-none');
+              document.getElementById('btnNavMaterias').classList.add('active');
+          } else if (vista === 'estudiantes') {
+              document.getElementById('seccionEstudiantes').classList.remove('d-none');
+              document.getElementById('btnNavEstudiantes').classList.add('active');
+          } else if (vista === 'notas') {
+              document.getElementById('seccionNotas').classList.remove('d-none');
+              document.getElementById('btnNavNotas').classList.add('active');
+          }
+      }
+
+      function prepararCrearUsuario() {
+          document.getElementById('formUsuario').reset();
+          document.getElementById('userId').value = '';
+          document.getElementById('modalTituloUsuario').innerText = 'Crear Usuario';
+      }
+
+      function prepararCrearMateria() {
+          document.getElementById('formMateria').reset();
+          document.getElementById('matCodigo').disabled = false;
+          document.getElementById('matModoEdit').value = 'false';
+          document.getElementById('modalTituloMateria').innerText = 'Nueva Materia';
+      }
+  </script>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
